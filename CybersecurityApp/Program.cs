@@ -27,7 +27,8 @@ namespace CybersecurityApp
                 Console.WriteLine("\nPlease select an option:");
                 Console.WriteLine("1. Ping a website");
                 Console.WriteLine("2. Check open ports on a remote host");
-                Console.WriteLine("3. Exit");
+                Console.WriteLine("3. Traceroute");
+                Console.WriteLine("4. Exit");
                 var choice = Console.ReadLine();
 
                 switch (choice)
@@ -43,6 +44,12 @@ namespace CybersecurityApp
                         CheckOpenPorts(ipAddress);
                         break;
                     case "3":
+                        Console.Write("\nEnter the IP address or domain name to trace: ");
+                        var traceAddress = Console.ReadLine();
+                        TraceRoute(traceAddress);
+                     
+                        break;
+                    case "4":
                         Console.WriteLine("\nExiting...");
                 
                         return;         
@@ -99,6 +106,43 @@ namespace CybersecurityApp
                     finally
                     {
                         client.Close();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\nAn error occurred: {ex.Message}");
+            }
+        }
+        static void TraceRoute(string address)
+        {
+            try
+            {
+                var ping = new Ping();
+                var maxHops = 30;
+                var timeout = 2000;
+                var bufferSize = 32;
+
+                Console.WriteLine($"\nTracing route to {address}");
+
+                for (int i = 1; i <= maxHops; i++)
+                {
+                    var reply = ping.Send(address, timeout, new byte[bufferSize], new PingOptions(i, true));
+
+                    if (reply != null && reply.Status != IPStatus.TtlExpired &&
+                        reply.Status != IPStatus.TimedOut)
+                    {
+                        Console.WriteLine($"Hop {i}: {reply.Address} ({reply.RoundtripTime} ms)");
+
+                        if (reply.Address.ToString() == address)
+                        {
+                            Console.WriteLine($"\nReached {address} !");
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Hop {i}:");
                     }
                 }
             }

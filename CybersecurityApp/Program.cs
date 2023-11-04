@@ -19,7 +19,9 @@ namespace CybersecurityApp
     {
         static void Main(string[] args)
         {
-           
+            string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            string logFilePath = Path.Combine(desktopPath, "network_events.log");
+            NetworkLogger logger = new NetworkLogger(logFilePath);
             Console.WriteLine("Welcome to the Cybersecurity App!");
 
             while (true)
@@ -44,30 +46,36 @@ namespace CybersecurityApp
                         Console.Write("\nEnter a website URL to ping: ");
                         var website = Console.ReadLine();
                         PingWebsite(website);
+                        logger.LogEvent("Ping", $"Performed ping operation on {website}");
                         break;
                     case "2":
                         Console.Write("\nEnter a remote host IP address to check open ports: ");
                         var ipAddress = Console.ReadLine();
                         CheckOpenPorts(ipAddress);
+                        logger.LogEvent("OpenPortsCheck", $"Performed open port check on {ipAddress}");
                         break;
                     case "3":
                         Console.Write("\nEnter the IP address or domain name to trace: ");
                         var traceAddress = Console.ReadLine();
                         TraceRoute(traceAddress);
+                        logger.LogEvent("Traceroute", $"Performed traceroute on {traceAddress}");
                         break;
                     case "4":
                         Console.Write("\nEnter a domain name to perform DNS lookup: ");
                         var hostname = Console.ReadLine();
                         DnsLookup(hostname);
+                        logger.LogEvent("DNSLookup", $"Performed DNS lookup on {hostname}");
                         break;
                     case "5":
                         Console.Write("\nEnter a domain name to perform WHOIS lookup: ");
                         var domain = Console.ReadLine();
                         WhoisLookup(domain);
+                        logger.LogEvent("WHOISLookup", $"Performed WHOIS lookup on {domain}");
                         break;
                     case "6":
                         Console.WriteLine("\nScanning local network for live hosts...");
-                        ScanLocalNetwork();                   
+                        ScanLocalNetwork();
+                        logger.LogEvent("ScanLocalNetwork", "Scanned local network for live hosts");
                         break;
                     case "7":
                         Console.Write("\nEnter a remote host IP address to check open ports: ");
@@ -77,25 +85,31 @@ namespace CybersecurityApp
                         Console.Write("Enter the ending port: ");
                         int endPort = int.Parse(Console.ReadLine());
                         CheckOpenPorts(remoteIpAddress, startPort, endPort);
+                        logger.LogEvent("OpenPortsCheck", $"Performed open port check on {remoteIpAddress} from port {startPort} to {endPort}");
                         break;
                     case "8":
                         GetPublicIPAddress();
+                        logger.LogEvent("PublicAddressCheck", "Performed public address check");
                         break;
                     case "9":
                         Console.Write("\nEnter a website URL to validate SSL/TLS certificate: ");
                         var websiteCheck = Console.ReadLine();
                         ValidateSSLCertificate(websiteCheck);
+                        logger.LogEvent("SSLCertificateValidation", $"Performed SSL/TLS certificate validation on {websiteCheck}");
                         break;
                     case "10":
                         Console.Write("\nEnter a website URL to analyze HTTP headers: ");
                         var websiteToAnalyze = Console.ReadLine();
                         AnalyzeHttpHeaders(websiteToAnalyze);
+                        logger.LogEvent("HTTPHeaderAnalysis", $"Performed HTTP header analysis on {websiteToAnalyze}");
                         break;
                     case "11":
                         Console.WriteLine("\nExiting...");
+                        logger.LogEvent("Exit", $"Closing the CybersecurityApp");
                         return;                         
                     default:
                         Console.WriteLine("\nInvalid choice! Please try again.");
+                        logger.LogEvent("Invalid input", "Invalid input was submitted!");
                         break;
                 }
             }

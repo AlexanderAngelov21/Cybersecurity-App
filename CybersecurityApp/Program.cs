@@ -10,7 +10,7 @@ using PcapDotNet.Core.Extensions;
 using System.Diagnostics;
 using SharpPcap;
 using PacketDotNet;
-
+using System.Security.Cryptography;
 
 namespace CybersecurityApp
 {
@@ -23,7 +23,7 @@ namespace CybersecurityApp
             string logFilePath = Path.Combine(desktopPath, "network_events.log");
             NetworkLogger logger = new NetworkLogger(logFilePath);
             Console.WriteLine("Welcome to the Cybersecurity App!");
-
+           
             while (true)
             {
                 Console.WriteLine("\nPlease select an option:");
@@ -37,7 +37,8 @@ namespace CybersecurityApp
                 Console.WriteLine("8. Public address check");
                 Console.WriteLine("9. SSL/TLS Certificate Validation");
                 Console.WriteLine("10. HTTP Header Analysis");
-                Console.WriteLine("11. Exit");
+                Console.WriteLine("11. Basic AV");
+                Console.WriteLine("12. Exit");
                 var choice = Console.ReadLine();
 
                 switch (choice)
@@ -104,6 +105,35 @@ namespace CybersecurityApp
                         logger.LogEvent("HTTPHeaderAnalysis", $"Performed HTTP header analysis on {websiteToAnalyze}");
                         break;
                     case "11":
+                        Console.Write("Enter the path to the file to check: ");
+                        string filePath = Console.ReadLine();
+
+                        if (File.Exists(filePath))
+                        {
+                            var md5FromFile = GetMD5FromFile(filePath);
+
+                            var md5signatures = File.ReadAllLines("MD5base.txt");
+                            if (md5signatures.Contains(md5FromFile))
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("The file is Infected!");
+                                Console.ResetColor();
+                                logger.LogEvent("BasicAV", $"File at {filePath} is infected.");
+                            }
+                            else
+                            {
+                                Console.ForegroundColor = ConsoleColor.Green;
+                                Console.WriteLine("The file is Clean!");
+                                Console.ResetColor();
+                                logger.LogEvent("BasicAV", $"File at {filePath} is clean.");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("The specified file does not exist.");
+                        }
+                        break;
+                    case "12":
                         Console.WriteLine("\nExiting...");
                         logger.LogEvent("Exit", $"Closing the CybersecurityApp");
                         return;                         
@@ -396,6 +426,16 @@ namespace CybersecurityApp
             catch (Exception ex)
             {
                 Console.WriteLine($"\nAn error occurred: {ex.Message}");
+            }
+        }
+        public static string GetMD5FromFile(string filePath)
+        {
+            using (var md5 = MD5.Create())
+            {
+                using (var stream = File.OpenRead(filePath))
+                {
+                    return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", string.Empty).ToLower();
+                }
             }
         }
     }

@@ -34,7 +34,8 @@ namespace CybersecurityApp
                 Console.WriteLine("7. Scan for open ports with start and end port");
                 Console.WriteLine("8. Public address check");
                 Console.WriteLine("9. SSL/TLS Certificate Validation");
-                Console.WriteLine("10. Exit");
+                Console.WriteLine("10. HTTP Header Analysis");
+                Console.WriteLine("11. Exit");
                 var choice = Console.ReadLine();
 
                 switch (choice)
@@ -86,6 +87,11 @@ namespace CybersecurityApp
                         ValidateSSLCertificate(websiteCheck);
                         break;
                     case "10":
+                        Console.Write("\nEnter a website URL to analyze HTTP headers: ");
+                        var websiteToAnalyze = Console.ReadLine();
+                        AnalyzeHttpHeaders(websiteToAnalyze);
+                        break;
+                    case "11":
                         Console.WriteLine("\nExiting...");
                         return;                         
                     default:
@@ -343,6 +349,33 @@ namespace CybersecurityApp
                     else
                     {
                         Console.WriteLine($"\nSSL/TLS Certificate for {website} is not valid or the website is unreachable.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\nAn error occurred: {ex.Message}");
+            }
+        }
+        static async Task AnalyzeHttpHeaders(string website)
+        {
+            try
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    HttpResponseMessage response = await client.GetAsync($"https://{ website}");
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine("\nHTTP Headers for " + website + ":");
+                        foreach (var header in response.Headers)
+                        {
+                            Console.WriteLine(header.Key + ": " + string.Join(", ", header.Value));
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"\nFailed to retrieve HTTP headers for {website}. Status code: {response.StatusCode}");
                     }
                 }
             }

@@ -31,7 +31,8 @@ namespace CybersecurityApp
                 Console.WriteLine("4. DNS Lookup");
                 Console.WriteLine("5. WHOIS Lookup");
                 Console.WriteLine("6. Scan local network for live hosts");
-                Console.WriteLine("7. Exit");
+                Console.WriteLine("7. Scan for open ports with start and end port");
+                Console.WriteLine("8. Exit");
                 var choice = Console.ReadLine();
 
                 switch (choice)
@@ -66,8 +67,17 @@ namespace CybersecurityApp
                         ScanLocalNetwork();                   
                         break;
                     case "7":
+                        Console.Write("\nEnter a remote host IP address to check open ports: ");
+                        var remoteIpAddress = Console.ReadLine();
+                        Console.Write("Enter the starting port: ");
+                        int startPort = int.Parse(Console.ReadLine());
+                        Console.Write("Enter the ending port: ");
+                        int endPort = int.Parse(Console.ReadLine());
+                        CheckOpenPorts(remoteIpAddress, startPort, endPort);
+                        break;
+                    case "8":
                         Console.WriteLine("\nExiting...");
-                        return;         
+                        return;                         
                     default:
                         Console.WriteLine("\nInvalid choice! Please try again.");
                         break;
@@ -269,6 +279,36 @@ namespace CybersecurityApp
         static string GetSubnetAddress(string ipAddress)
         {
             return string.Join(".", ipAddress.Split('.').Take(3));
+        }
+        static void CheckOpenPorts(string ipAddress, int startPort, int endPort)
+        {
+            try
+            {
+                Console.WriteLine($"\nScanning open ports on {ipAddress} in the range {startPort}-{endPort}");
+
+                for (int port = startPort; port <= endPort; port++)
+                {
+                    var client = new TcpClient();
+
+                    try
+                    {
+                        client.Connect(ipAddress, port);
+                        Console.WriteLine($"Port {port} is open");
+                    }
+                    catch
+                    {
+                        Console.WriteLine($"Port {port} is closed");
+                    }
+                    finally
+                    {
+                        client.Close();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\nAn error occurred: {ex.Message}");
+            }
         }
     }
 }

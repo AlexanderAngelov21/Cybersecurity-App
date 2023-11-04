@@ -37,8 +37,9 @@ namespace CybersecurityApp
                 Console.WriteLine("8. Public address check");
                 Console.WriteLine("9. SSL/TLS Certificate Validation");
                 Console.WriteLine("10. HTTP Header Analysis");
-                Console.WriteLine("11. Basic AV");
-                Console.WriteLine("12. Exit");
+                Console.WriteLine("11. Basic AV(for single file)");
+                Console.WriteLine("12. Basic AV(for directory)");
+                Console.WriteLine("13. Exit");
                 var choice = Console.ReadLine();
 
                 switch (choice)
@@ -131,9 +132,53 @@ namespace CybersecurityApp
                         else
                         {
                             Console.WriteLine("The specified file does not exist.");
+                            logger.LogEvent("BasicAV(for single file)", $"File doesn't exist.");
                         }
                         break;
                     case "12":
+                        Console.Write("Enter the path of the directory to scan for files: ");
+                        string directoryPathToScan = Console.ReadLine();
+
+                        if (Directory.Exists(directoryPathToScan))
+                        {
+                            Console.WriteLine($"Scanning files in the directory: {directoryPathToScan}");
+
+                            string[] files = Directory.GetFiles(directoryPathToScan, "*.*", SearchOption.AllDirectories);
+
+                            bool foundInfectedFile = false;
+
+                            foreach (string fileToCheck in files)
+                            {
+                                var md5FromFile = GetMD5FromFile(fileToCheck);
+                                var md5signatures = File.ReadAllLines("MD5base.txt");
+
+                                if (md5signatures.Contains(md5FromFile))
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Red;
+                                    string infectedFileName = Path.GetFileName(fileToCheck);
+                                    Console.WriteLine($"Infected: {infectedFileName}");
+                                    Console.ResetColor();
+                                    logger.LogEvent("BasicAV(for directory)", $"The file {infectedFileName} at {fileToCheck} is infected.");
+                                    foundInfectedFile = true;
+                                }
+
+                            }
+
+                            if (!foundInfectedFile)
+                            {
+                                Console.ForegroundColor = ConsoleColor.Green;
+                                Console.WriteLine($"All files are clean.");
+                                logger.LogEvent("BasicAV(for directory)", $"All files are clean.");
+                                Console.ResetColor();
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("The specified directory does not exist.");
+                            logger.LogEvent("BasicAV(for directory)", $"No such directory.");
+                        }
+                        break;
+                    case "13":
                         Console.WriteLine("\nExiting...");
                         logger.LogEvent("Exit", $"Closing the CybersecurityApp");
                         return;                         

@@ -33,7 +33,8 @@ namespace CybersecurityApp
                 Console.WriteLine("6. Scan local network for live hosts");
                 Console.WriteLine("7. Scan for open ports with start and end port");
                 Console.WriteLine("8. Public address check");
-                Console.WriteLine("9. Exit");
+                Console.WriteLine("9. SSL/TLS Certificate Validation");
+                Console.WriteLine("10. Exit");
                 var choice = Console.ReadLine();
 
                 switch (choice)
@@ -80,6 +81,11 @@ namespace CybersecurityApp
                         GetPublicIPAddress();
                         break;
                     case "9":
+                        Console.Write("\nEnter a website URL to validate SSL/TLS certificate: ");
+                        var websiteCheck = Console.ReadLine();
+                        ValidateSSLCertificate(websiteCheck);
+                        break;
+                    case "10":
                         Console.WriteLine("\nExiting...");
                         return;                         
                     default:
@@ -320,6 +326,29 @@ namespace CybersecurityApp
             {
                 string response = await client.GetStringAsync("https://api.ipify.org?format=text");
                 Console.WriteLine($"Your Public IP Address is: {response}");
+            }
+        }
+        static void ValidateSSLCertificate(string website)
+        {
+            try
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    HttpResponseMessage response = client.GetAsync($"https://{website}").Result;
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine($"\nSSL/TLS Certificate for {website} is valid.");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"\nSSL/TLS Certificate for {website} is not valid or the website is unreachable.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\nAn error occurred: {ex.Message}");
             }
         }
     }

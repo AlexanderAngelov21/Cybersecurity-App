@@ -30,7 +30,8 @@ namespace CybersecurityApp
                 Console.WriteLine("3. Traceroute");
                 Console.WriteLine("4. DNS Lookup");
                 Console.WriteLine("5. WHOIS Lookup");
-                Console.WriteLine("6. Exit");
+                Console.WriteLine("6. Scan local network for live hosts");
+                Console.WriteLine("7. Exit");
                 var choice = Console.ReadLine();
 
                 switch (choice)
@@ -61,6 +62,10 @@ namespace CybersecurityApp
                         WhoisLookup(domain);
                         break;
                     case "6":
+                        Console.WriteLine("\nScanning local network for live hosts...");
+                        ScanLocalNetwork();                   
+                        break;
+                    case "7":
                         Console.WriteLine("\nExiting...");
                         return;         
                     default:
@@ -208,6 +213,62 @@ namespace CybersecurityApp
             {
                 Console.WriteLine($"\nAn error occurred: {ex.Message}");
             }
+        }
+        static void ScanLocalNetwork()
+        {
+            try
+            {
+                var localIPAddress = GetLocalIPAddress();
+                var subnetAddress = GetSubnetAddress(localIPAddress);
+
+                Console.WriteLine($"\nScanning local network (Subnet: {subnetAddress}) for live hosts...");
+
+                var liveHosts = new List<IPAddress>();
+
+                for (int i = 1; i <= 255; i++)
+                {
+                    var ping = new Ping();
+                    var ip = $"{subnetAddress}.{i}";
+
+                    var reply = ping.Send(ip, 100); // Adjust timeout as required
+
+                    if (reply != null && reply.Status == IPStatus.Success)
+                    {
+                        Console.WriteLine($"Host {ip} is up");
+                        liveHosts.Add(reply.Address);
+                    }
+                }
+
+                Console.WriteLine($"\nFound {liveHosts.Count} live hosts:");
+
+                foreach (var host in liveHosts)
+                {
+                    Console.WriteLine(host);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\nAn error occurred: {ex.Message}");
+            }
+        }
+        static string GetLocalIPAddress()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+
+            foreach (var ipAddress in host.AddressList)
+            {
+                if (ipAddress.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    return ipAddress.ToString();
+                }
+            }
+
+            throw new Exception("No network adapters with an IPv4 address found.");
+        }
+
+        static string GetSubnetAddress(string ipAddress)
+        {
+            return string.Join(".", ipAddress.Split('.').Take(3));
         }
     }
 }

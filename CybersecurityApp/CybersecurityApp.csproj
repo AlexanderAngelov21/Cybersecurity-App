@@ -8,6 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ClamAV.Net" Version="0.1.150" />
+    <PackageReference Include="nClam" Version="6.0.0" />
     <PackageReference Include="PacketDotNet" Version="1.4.7" />
     <PackageReference Include="PcapDotNet" Version="0.10.2" />
     <PackageReference Include="SharpPcap" Version="6.2.5" />

@@ -28,7 +28,8 @@ namespace CybersecurityApp
                 Console.WriteLine("1. Ping a website");
                 Console.WriteLine("2. Check open ports on a remote host");
                 Console.WriteLine("3. Traceroute");
-                Console.WriteLine("4. Exit");
+                Console.WriteLine("4. DNS Lookup");
+                Console.WriteLine("5. Exit");
                 var choice = Console.ReadLine();
 
                 switch (choice)
@@ -47,11 +48,14 @@ namespace CybersecurityApp
                         Console.Write("\nEnter the IP address or domain name to trace: ");
                         var traceAddress = Console.ReadLine();
                         TraceRoute(traceAddress);
-                     
                         break;
                     case "4":
+                        Console.Write("\nEnter a domain name to perform DNS lookup: ");
+                        var hostname = Console.ReadLine();
+                        DnsLookup(hostname);
+                        break;
+                    case "5":
                         Console.WriteLine("\nExiting...");
-                
                         return;         
                     default:
                         Console.WriteLine("\nInvalid choice! Please try again.");
@@ -144,6 +148,24 @@ namespace CybersecurityApp
                     {
                         Console.WriteLine($"Hop {i}:");
                     }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\nAn error occurred: {ex.Message}");
+            }
+        }
+        static void DnsLookup(string hostname)
+        {
+            try
+            {
+                var ipAddresses = Dns.GetHostAddresses(hostname);
+
+                Console.WriteLine($"\nIP addresses for {hostname}:");
+
+                foreach (var ipAddress in ipAddresses)
+                {
+                    Console.WriteLine(ipAddress);
                 }
             }
             catch (Exception ex)

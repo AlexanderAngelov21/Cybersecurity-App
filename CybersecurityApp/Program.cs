@@ -29,7 +29,8 @@ namespace CybersecurityApp
                 Console.WriteLine("2. Check open ports on a remote host");
                 Console.WriteLine("3. Traceroute");
                 Console.WriteLine("4. DNS Lookup");
-                Console.WriteLine("5. Exit");
+                Console.WriteLine("5. WHOIS Lookup");
+                Console.WriteLine("6. Exit");
                 var choice = Console.ReadLine();
 
                 switch (choice)
@@ -55,6 +56,11 @@ namespace CybersecurityApp
                         DnsLookup(hostname);
                         break;
                     case "5":
+                        Console.Write("\nEnter a domain name to perform WHOIS lookup: ");
+                        var domain = Console.ReadLine();
+                        WhoisLookup(domain);
+                        break;
+                    case "6":
                         Console.WriteLine("\nExiting...");
                         return;         
                     default:
@@ -167,6 +173,36 @@ namespace CybersecurityApp
                 {
                     Console.WriteLine(ipAddress);
                 }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\nAn error occurred: {ex.Message}");
+            }
+        }
+        static void WhoisLookup(string domain)
+        {
+            try
+            {
+                var whoisServer = "whois.verisign-grs.com";
+                var tcpClient = new TcpClient(whoisServer, 43);
+                var networkStream = tcpClient.GetStream();
+                var streamWriter = new StreamWriter(networkStream) { AutoFlush = true };
+                var streamReader = new StreamReader(networkStream);
+
+                streamWriter.WriteLine(domain);
+
+                var response = "";
+                string line;
+                while ((line = streamReader.ReadLine()) != null)
+                {
+                    response += line + "\n";
+                }
+
+                Console.WriteLine($"\nWHOIS information for {domain}:\n{response}");
+
+                tcpClient.Close();
+                streamWriter.Close();
+                streamReader.Close();
             }
             catch (Exception ex)
             {

@@ -32,7 +32,8 @@ namespace CybersecurityApp
                 Console.WriteLine("5. WHOIS Lookup");
                 Console.WriteLine("6. Scan local network for live hosts");
                 Console.WriteLine("7. Scan for open ports with start and end port");
-                Console.WriteLine("8. Exit");
+                Console.WriteLine("8. Public address check");
+                Console.WriteLine("9. Exit");
                 var choice = Console.ReadLine();
 
                 switch (choice)
@@ -76,6 +77,9 @@ namespace CybersecurityApp
                         CheckOpenPorts(remoteIpAddress, startPort, endPort);
                         break;
                     case "8":
+                        GetPublicIPAddress();
+                        break;
+                    case "9":
                         Console.WriteLine("\nExiting...");
                         return;                         
                     default:
@@ -308,6 +312,14 @@ namespace CybersecurityApp
             catch (Exception ex)
             {
                 Console.WriteLine($"\nAn error occurred: {ex.Message}");
+            }
+        }
+        static async Task GetPublicIPAddress()
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                string response = await client.GetStringAsync("https://api.ipify.org?format=text");
+                Console.WriteLine($"Your Public IP Address is: {response}");
             }
         }
     }

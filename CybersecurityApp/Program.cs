@@ -31,15 +31,14 @@ namespace CybersecurityApp
                 Console.WriteLine("2. Check open ports on a remote host");
                 Console.WriteLine("3. Traceroute");
                 Console.WriteLine("4. DNS Lookup");
-                Console.WriteLine("5. WHOIS Lookup");
-                Console.WriteLine("6. Scan local network for live hosts");
-                Console.WriteLine("7. Scan for open ports with start and end port");
-                Console.WriteLine("8. Public address check");
-                Console.WriteLine("9. SSL/TLS Certificate Validation");
-                Console.WriteLine("10. HTTP Header Analysis");
-                Console.WriteLine("11. Basic AV(for single file)");
-                Console.WriteLine("12. Basic AV(for directory)");
-                Console.WriteLine("13. Exit");
+                Console.WriteLine("5. Scan local network for live hosts");
+                Console.WriteLine("6. Scan for open ports with start and end port");
+                Console.WriteLine("7. Public address check");
+                Console.WriteLine("8. SSL/TLS Certificate Validation");
+                Console.WriteLine("9. HTTP Header Analysis");
+                Console.WriteLine("10. Basic AV(for single file)");
+                Console.WriteLine("11. Basic AV(for directory)");
+                Console.WriteLine("12. Exit");
                 var choice = Console.ReadLine();
 
                 switch (choice)
@@ -69,17 +68,11 @@ namespace CybersecurityApp
                         logger.LogEvent("DNSLookup", $"Performed DNS lookup on {hostname}");
                         break;
                     case "5":
-                        Console.Write("\nEnter a domain name to perform WHOIS lookup: ");
-                        var domain = Console.ReadLine();
-                        WhoisLookup(domain);
-                        logger.LogEvent("WHOISLookup", $"Performed WHOIS lookup on {domain}");
-                        break;
-                    case "6":
                         Console.WriteLine("\nScanning local network for live hosts...");
                         ScanLocalNetwork();
                         logger.LogEvent("ScanLocalNetwork", "Scanned local network for live hosts");
                         break;
-                    case "7":
+                    case "6":
                         Console.Write("\nEnter a remote host IP address to check open ports: ");
                         var remoteIpAddress = Console.ReadLine();
                         Console.Write("Enter the starting port: ");
@@ -89,23 +82,23 @@ namespace CybersecurityApp
                         CheckOpenPorts(remoteIpAddress, startPort, endPort);
                         logger.LogEvent("OpenPortsCheck", $"Performed open port check on {remoteIpAddress} from port {startPort} to {endPort}");
                         break;
-                    case "8":
+                    case "7":
                         GetPublicIPAddress();
                         logger.LogEvent("PublicAddressCheck", "Performed public address check");
                         break;
-                    case "9":
+                    case "8":
                         Console.Write("\nEnter a website URL to validate SSL/TLS certificate: ");
                         var websiteCheck = Console.ReadLine();
                         ValidateSSLCertificate(websiteCheck);
                         logger.LogEvent("SSLCertificateValidation", $"Performed SSL/TLS certificate validation on {websiteCheck}");
                         break;
-                    case "10":
+                    case "9":
                         Console.Write("\nEnter a website URL to analyze HTTP headers: ");
                         var websiteToAnalyze = Console.ReadLine();
                         AnalyzeHttpHeaders(websiteToAnalyze);
                         logger.LogEvent("HTTPHeaderAnalysis", $"Performed HTTP header analysis on {websiteToAnalyze}");
                         break;
-                    case "11":
+                    case "10":
                         Console.Write("Enter the path to the file to check: ");
                         string filePath = Console.ReadLine();
 
@@ -135,7 +128,7 @@ namespace CybersecurityApp
                             logger.LogEvent("BasicAV(for single file)", $"File doesn't exist.");
                         }
                         break;
-                    case "12":
+                    case "11":
                         Console.Write("Enter the path of the directory to scan for files: ");
                         string directoryPathToScan = Console.ReadLine();
 
@@ -178,7 +171,7 @@ namespace CybersecurityApp
                             logger.LogEvent("BasicAV(for directory)", $"No such directory.");
                         }
                         break;
-                    case "13":
+                    case "12":
                         Console.WriteLine("\nExiting...");
                         logger.LogEvent("Exit", $"Closing the CybersecurityApp");
                         return;                         
@@ -299,36 +292,7 @@ namespace CybersecurityApp
                 Console.WriteLine($"\nAn error occurred: {ex.Message}");
             }
         }
-        static void WhoisLookup(string domain)
-        {
-            try
-            {
-                var whoisServer = "whois.verisign-grs.com";
-                var tcpClient = new TcpClient(whoisServer, 43);
-                var networkStream = tcpClient.GetStream();
-                var streamWriter = new StreamWriter(networkStream) { AutoFlush = true };
-                var streamReader = new StreamReader(networkStream);
 
-                streamWriter.WriteLine(domain);
-
-                var response = "";
-                string line;
-                while ((line = streamReader.ReadLine()) != null)
-                {
-                    response += line + "\n";
-                }
-
-                Console.WriteLine($"\nWHOIS information for {domain}:\n{response}");
-
-                tcpClient.Close();
-                streamWriter.Close();
-                streamReader.Close();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"\nAn error occurred: {ex.Message}");
-            }
-        }
         static void ScanLocalNetwork()
         {
             try

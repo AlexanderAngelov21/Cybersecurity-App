@@ -11,6 +11,7 @@ using System.Diagnostics;
 using SharpPcap;
 using PacketDotNet;
 using System.Security.Cryptography;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace CybersecurityApp
 {
@@ -19,6 +20,8 @@ namespace CybersecurityApp
     {
         static void Main(string[] args)
         {
+            Console.WindowWidth = 137;
+            Console.WindowHeight = 27;
             string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             string logFilePath = Path.Combine(desktopPath, "network_events.log");
             NetworkLogger logger = new NetworkLogger(logFilePath);
@@ -27,17 +30,17 @@ namespace CybersecurityApp
             while (true)
             {
                 Console.WriteLine("\nPlease select an option:");
-                Console.WriteLine("1. Ping a website");
-                Console.WriteLine("2. Check open ports on a remote host");
-                Console.WriteLine("3. Traceroute");
-                Console.WriteLine("4. DNS Lookup");
+                Console.WriteLine("1. Ping a website (write URL without https:// e.g. facebook.com)");
+                Console.WriteLine("2. Check open ports on a remote host (write IP address or domain (e.g. facebook.com)");
+                Console.WriteLine("3. Traceroute (write IP address (e.g. 192.168.0.1 or 8.8.8.8, can use DNSLookup option to check domain's IP)");
+                Console.WriteLine("4. DNS Lookup (write the domain without https://)");
                 Console.WriteLine("5. Scan local network for live hosts");
-                Console.WriteLine("6. Scan for open ports with start and end port");
+                Console.WriteLine("6. Scan for open ports with start and end port (write IP address of site or your machine - you can use option 7 to retrieve your IP");
                 Console.WriteLine("7. Public address check");
-                Console.WriteLine("8. SSL/TLS Certificate Validation");
-                Console.WriteLine("9. HTTP Header Analysis");
-                Console.WriteLine("10. Basic AV(for single file)");
-                Console.WriteLine("11. Basic AV(for directory)");
+                Console.WriteLine("8. SSL/TLS Certificate Validation (write the domain of the website without https:// (e.g. facebook.com)");
+                Console.WriteLine("9. HTTP Header Analysis (write the domain of the website without https:// (e.g. facebook.com)");
+                Console.WriteLine("10. Basic AV(for single file) - write the path to file and its extension! (e.g. C:\\Example\\User\\folder\\folder2\\app\\app.sln)");
+                Console.WriteLine("11. Basic AV(for directory) - write the path to directory! (e.g. C:\\Example\\User\\folder\\folder2\\app)");
                 Console.WriteLine("12. Exit");
                 var choice = Console.ReadLine();
 
@@ -401,7 +404,7 @@ namespace CybersecurityApp
                     }
                     else
                     {
-                        Console.WriteLine($"\nSSL/TLS Certificate for {website} is not valid or the website is unreachable.");
+                        Console.WriteLine($"\nSSL/TLS Certificate for {website} is not valid.");
                     }
                 }
             }
